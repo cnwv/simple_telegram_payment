@@ -13,17 +13,16 @@ from handlers import payment
 TOKEN = settings.telegram.token
 dp = Dispatcher()
 
+# Регистрируем обработчики
 dp.message.register(payment.send_invoice_handler, Command(commands="donate"))
+dp.callback_query.register(payment.handle_payment_button, F.data.startswith("pay_"))
 dp.pre_checkout_query.register(payment.pre_checkout_handler)
 dp.message.register(payment.success_payment_handler, F.successful_payment)
 dp.message.register(payment.pay_support_handler, Command(commands="paysupport"))
 
 
 async def main() -> None:
-    # Initialize Bot instance with default bot properties which will be passed to all API calls
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
-    # And the run events dispatching
     await dp.start_polling(bot)
 
 
